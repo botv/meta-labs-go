@@ -66,7 +66,6 @@ func (c Client) UpdateKey(key string, meta map[string]string) (Response, error) 
 	} else {
 		r, err := c.decodeToResponse(resp.Body())
 
-		println(string(resp.Body()))
 		if err != nil {
 			return Response{}, err;
 		}
@@ -96,7 +95,6 @@ func(c Client) GetKey(key string) (Response, error) {
 	} else {
 		r, err := c.decodeToResponse(resp.Body())
 
-		println(string(resp.Body()))
 		if err != nil {
 			return Response{}, err;
 		}
