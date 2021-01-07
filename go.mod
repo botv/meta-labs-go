@@ -1,4 +1,4 @@
-module github.com/backbone-dev/metalabs_go
+module github.com/Imag/metalabs_go
 
 go 1.15
 
