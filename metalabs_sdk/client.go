@@ -104,4 +104,4 @@ func (c Client) decodeToResponse(b []byte) (Response, error) {
 	return r, nil
 }
 
-func BuildAPIUrl(key string) string { return fmt.Sprintf("https://api.metalabs.io/v2/licenses/%s", key) }
+func BuildAPIUrl(key string) string { return fmt.Sprintf("https://api.metalabs.io/v4/licenses/%s", key) }
