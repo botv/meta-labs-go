@@ -74,16 +74,6 @@ func (c Client) UpdateKey(key string, meta map[string]string) (Response, error) 
 	}
 }
 
-func (c Client) encodeMap(meta struct{}) (string, error) {
-	e, err := json.Marshal(meta)
-    if err != nil {
-        fmt.Println(err)
-        return "", err
-    }
-	return string(e), nil
-}
-
-
 func(c Client) GetKey(key string) (Response, error) {
 	resp, err := c.client.R().SetHeader("Authorization", fmt.Sprintf("Basic %s", c.access_key)).Get(BuildAPIUrl(key))
 	if err != nil {
