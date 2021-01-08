@@ -1,4 +1,4 @@
-module github.com/Imag/metalabs_go
+module github.com/meta-labs/meta-labs-go
 
 go 1.15
 
