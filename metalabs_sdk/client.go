@@ -7,101 +7,87 @@ import (
 )
 
 type Client struct {
-	access_key string;
-	client *resty.Client;
-}
-
-type Response struct {
-	message string
-	ID string `json:"id"`
-	Key string `json:"key"`
-	Plan struct {
-		ID string `json:"id"`
-		Price string `json:"price"`
-		Roles []string `json:"roles"`
-		Recurring struct {
-			Interval string `json:"interval"`
-			IntervalCount int `json:"interval_count"`
-		} `json:"recurring"`
-		Name string `json:"name"`
-		Amount int `json:"amount"`
-		Type string `json:"type"`
-		Currency string `json:"currency"`
-	} `json:"plan"`
-	Member struct {
-		Email string `json:"email"`
-		Discord struct {
-			ID string `json:"id"`
-			Tag string `json:"tag"`
-			Username string `json:"username"`
-			Discriminator string `json:"discriminator"`
-			Avatar string `json:"avatar"`
-		} `json:"discord"`
-	} `json:"member"`
-	Customer string `json:"customer"`
-	Payment_Method string `json:"payment_method"`
-	Subscription string `json:"subscription"`
-	Metadata map[string]interface {
-
-	} `json:"metadata"`
+	Authorization string;
+	Client *resty.Client;
 }
 
 func New(key string) Client {
 	return Client {
-		access_key: key,
-		client: resty.New(),
+		Authorization: key,
+		Client: resty.New(),
 	}
 }
 
-func (c Client) UpdateKey(key string, meta map[string]string) (Response, error) {
-	data, _ := json.Marshal(meta)
-	resp, err := c.client.R().SetHeader("Content-Type", "application/json").SetHeader("Authorization", fmt.Sprintf("Basic %s", c.access_key)).SetBody([]byte(fmt.Sprintf(`{"metadata": %s}`, data))).Patch(BuildAPIUrl(key))
+func (c Client) UpdateKey(license string, data map[string]interface{}) (License, error) {
+	b, _ := json.Marshal(data)
+	resp, err := c.Client.R().
+						SetHeader("Content-Type", "application/json").
+						SetHeader("Authorization", fmt.Sprintf("Bearer %s", c.Authorization)).
+						SetBody([]byte(fmt.Sprintf(`{"metadata": %s}`, b))).
+						Patch(c.BuildURL(fmt.Sprintf("/licenses/%s", license)))
 	
 	if err != nil {
-		return Response{}, err
+		return License{}, err
+	}
+	
+	if string(resp.Body()) == "Not Found" {
+		return License{
+			message: "License Not Found",
+		}, nil
+	}
+
+	res, err := c.decodeResponse(resp.Body())
+
+	if err != nil {
+		return License{}, err
+	}
+
+	return res, nil
+}
+
+func (c Client) GetKey(license string) (License, error) {
+	resp, err := c.Client.R().
+						SetHeader("Authorization", fmt.Sprintf("Bearer %s", c.Authorization)).
+						Get(c.BuildURL(fmt.Sprintf("/licenses/%s", license)))
+
+	if err != nil {
+		return License{}, err
 	}
 
 	if string(resp.Body()) == "Not Found" {
-		return Response{ message: "License Not Found" }, nil
-	} else {
-		r, err := c.decodeToResponse(resp.Body())
-
-		if err != nil {
-			return Response{}, err;
-		}
-	
-		return r, nil
+		return License{
+			message: "License Not Found",
+		}, nil
 	}
-}
 
-func(c Client) GetKey(key string) (Response, error) {
-	resp, err := c.client.R().SetHeader("Authorization", fmt.Sprintf("Basic %s", c.access_key)).Get(BuildAPIUrl(key))
+	res, err := c.decodeResponse(resp.Body())
+
 	if err != nil {
-		return Response{}, err
+		return License{}, err
 	}
 
-	if string(resp.Body()) == "Not Found" {
-		return Response{ message: "License Not Found" }, nil
-	} else {
-		r, err := c.decodeToResponse(resp.Body())
-
-		if err != nil {
-			return Response{}, err;
-		}
-	
-		return r, nil
-	}
+	return res, nil
 }
 
-func (c Client) decodeToResponse(b []byte) (Response, error) {
-	var r Response
+func (c Client) ValidateLicense(license string) bool {
+	return false
+}
+
+func(c Client) BuildURL(endpoint string) string {
+	return fmt.Sprintf("https://api.metalabs.io/v4/%s", endpoint)
+}
+
+func(c Client) FindLicense(license string) string {
+	return license
+}
+
+func (c Client) decodeResponse(b []byte) (License, error) {
+	var r License
 	err := json.Unmarshal(b, &r)
 
 	if err != nil {
 		return r, nil
 	}
-	
+
 	return r, nil
 }
-
-func BuildAPIUrl(key string) string { return fmt.Sprintf("https://api.metalabs.io/v4/licenses/%s", key) }
