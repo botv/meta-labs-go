@@ -2,7 +2,9 @@ package metalabs_sdk
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -31,9 +33,7 @@ func (c Client) UpdateKey(license string, data map[string]interface{}) (License,
 	}
 	
 	if string(resp.Body()) == "Not Found" {
-		return License{
-			message: "License Not Found",
-		}, nil
+		return License{}, errors.New("License Not Found")
 	}
 
 	res, err := c.decodeResponse(resp.Body())
@@ -55,9 +55,7 @@ func (c Client) GetKey(license string) (License, error) {
 	}
 
 	if string(resp.Body()) == "Not Found" {
-		return License{
-			message: "License Not Found",
-		}, nil
+		return License{}, errors.New("License Not Found")
 	}
 
 	res, err := c.decodeResponse(resp.Body())
