@@ -28,11 +28,9 @@ func main(){
     
     /* Updating a license */
     
-    /* Strings, Structs, Slices, Ints Supported */
+    /* Strings Currently Supported */
     data := make(map[string]interface{})
     data["..."] = "..."
-    data["..."] = {}
-    data["..."] = 1
     
     updatedLicense, err := Client.GetKey("0000-0000-0000-0000")
     
