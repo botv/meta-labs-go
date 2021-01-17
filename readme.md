@@ -5,13 +5,15 @@
 
 # Example
 ```
+package main
+
 import (
-    "github.com/meta-labs/meta-labs-go/metalabs_sdk"
+    metalabs "github.com/meta-labs/meta-labs-go/metalabs_sdk"
     "log"
 )
 
 func main(){
-    Client := New("pk...")
+    Client := metalabs.New("pk...")
     
     /* Fetching a license */
     license, err := Client.GetKey("0000-0000-0000-0000")
